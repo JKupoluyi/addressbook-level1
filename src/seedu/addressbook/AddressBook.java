@@ -34,7 +34,7 @@ import java.util.Set;
  * This class is used to maintain a list of person data which are saved
  * in a text file.
  **/
-public class AddressBook {
+public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
 
     /**
      * Default file path used if the user doesn't provide the file name.
@@ -65,7 +65,7 @@ public class AddressBook {
      * at which java String.format(...) method can insert values.
      * =========================================================================
      */
-    private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s";
+    private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s, Tweet: %4$s.";
     private static final String MESSAGE_ADDRESSBOOK_CLEARED = "Address book has been cleared!";
     private static final String MESSAGE_COMMAND_HELP = "%1$s: %2$s";
     private static final String MESSAGE_COMMAND_HELP_PARAMETERS = "\tParameters: %1$s";
@@ -74,7 +74,7 @@ public class AddressBook {
     private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s";
     private static final String MESSAGE_DISPLAY_LIST_ELEMENT_INDEX = "%1$d. ";
     private static final String MESSAGE_GOODBYE = "Exiting Address Book... Good bye!";
-    private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s";
+    private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s " + LS + "%3$s";
     private static final String MESSAGE_INVALID_FILE = "The given file name [%1$s] is not a valid file name!";
     private static final String MESSAGE_INVALID_PROGRAM_ARGS = "Too many parameters! Correct program argument format:"
                                                             + LS + "\tjava AddressBook"
@@ -94,16 +94,20 @@ public class AddressBook {
     // These are the prefix strings to define the data type of a command parameter
     private static final String PERSON_DATA_PREFIX_PHONE = "p/";
     private static final String PERSON_DATA_PREFIX_EMAIL = "e/";
+    private static final String PERSON_DATA_PREFIX_TWEET = "t/";
 
     private static final String PERSON_STRING_REPRESENTATION = "%1$s " // name
                                                             + PERSON_DATA_PREFIX_PHONE + "%2$s " // phone
-                                                            + PERSON_DATA_PREFIX_EMAIL + "%3$s"; // email
+                                                            + PERSON_DATA_PREFIX_EMAIL + "%3$s" // email
+                                                            + PERSON_DATA_PREFIX_TWEET + "%4$s"; // twitter
     private static final String COMMAND_ADD_WORD = "add";
     private static final String COMMAND_ADD_DESC = "Adds a person to the address book.";
     private static final String COMMAND_ADD_PARAMETERS = "NAME "
                                                       + PERSON_DATA_PREFIX_PHONE + "PHONE_NUMBER "
-                                                      + PERSON_DATA_PREFIX_EMAIL + "EMAIL";
-    private static final String COMMAND_ADD_EXAMPLE = COMMAND_ADD_WORD + " John Doe p/98765432 e/johnd@gmail.com";
+                                                      + PERSON_DATA_PREFIX_EMAIL + "EMAIL"
+                                                      + PERSON_DATA_PREFIX_TWEET + "TWITTER";
+
+    private static final String COMMAND_ADD_EXAMPLE = COMMAND_ADD_WORD + " John Doe p/98765432 e/johnd@gmail.com t/@JohnDoe";
 
     private static final String COMMAND_FIND_WORD = "find";
     private static final String COMMAND_FIND_DESC = "Finds all persons whose names contain any of the specified "
@@ -144,11 +148,12 @@ public class AddressBook {
     private static final int PERSON_DATA_INDEX_NAME = 0;
     private static final int PERSON_DATA_INDEX_PHONE = 1;
     private static final int PERSON_DATA_INDEX_EMAIL = 2;
+    private static final int PERSON_DATA_INDEX_TWEET = 3;
 
     /**
      * The number of data elements for a single person.
      */
-    private static final int PERSON_DATA_COUNT = 3;
+    private static final int PERSON_DATA_COUNT = 4;
 
     /**
      * Offset required to convert between 1-indexing and 0-indexing.COMMAND_
@@ -257,7 +262,7 @@ public class AddressBook {
      * @param args full program arguments passed to application main method
      */
     private static void processProgramArgs(String[] args) {
-        if (args.length >= 2) {
+        if (args.length >= 3) {
             showToUser(MESSAGE_INVALID_PROGRAM_ARGS);
             exitProgram();
         }
