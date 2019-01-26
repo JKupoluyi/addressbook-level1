@@ -960,7 +960,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
      * @param personData person string representation
      */
     private static boolean isPersonDataExtractableFrom(String personData) {
-        final String matchAnyPersonDataPrefix = PERSON_DATA_PREFIX_PHONE + '|' + PERSON_DATA_PREFIX_EMAIL;
+        final String matchAnyPersonDataPrefix = PERSON_DATA_PREFIX_PHONE + '|' + PERSON_DATA_PREFIX_EMAIL + '|' + PERSON_DATA_PREFIX_TWEET;
         final String[] splitArgs = personData.trim().split(matchAnyPersonDataPrefix);
         return splitArgs.length == 3 // 3 arguments
                 && !splitArgs[0].isEmpty() // non-empty arguments
@@ -977,8 +977,11 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     private static String extractNameFromPersonString(String encoded) {
         final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
         final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        final int indexOfTweetPrefix = encoded.indexOf(PERSON_DATA_PREFIX_TWEET);
+
+
         // name is leading substring up to first data prefix symbol
-        int indexOfFirstPrefix = Math.min(indexOfEmailPrefix, indexOfPhonePrefix);
+        int indexOfFirstPrefix = Math.min(indexOfTweetPrefix, Math.min(indexOfEmailPrefix, indexOfPhonePrefix));
         return encoded.substring(0, indexOfFirstPrefix).trim();
     }
 
@@ -991,6 +994,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     private static String extractPhoneFromPersonString(String encoded) {
         final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
         final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        //!!!!!!final int indexOfTweetPrefix = encoded.indexOf(PERSON_DATA_PREFIX_TWEET)
 
         // phone is last arg, target is from prefix to end of string
         if (indexOfPhonePrefix > indexOfEmailPrefix) {
@@ -1014,6 +1018,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     private static String extractEmailFromPersonString(String encoded) {
         final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
         final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        final int indexOfTweetPrefix = encoded.indexOf(PERSON_DATA_PREFIX_TWEET);
 
         // email is last arg, target is from prefix to end of string
         if (indexOfEmailPrefix > indexOfPhonePrefix) {
@@ -1036,7 +1041,8 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     private static boolean isPersonDataValid(String[] person) {
         return isPersonNameValid(person[PERSON_DATA_INDEX_NAME])
                 && isPersonPhoneValid(person[PERSON_DATA_INDEX_PHONE])
-                && isPersonEmailValid(person[PERSON_DATA_INDEX_EMAIL]);
+                && isPersonEmailValid(person[PERSON_DATA_INDEX_EMAIL])
+                && isPersonTweetValid(person[PERSON_DATA_INDEX_TWEET]);
     }
 
     /*
@@ -1075,6 +1081,11 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
      */
     private static boolean isPersonEmailValid(String email) {
         return email.matches("\\S+@\\S+\\.\\S+"); // email is [non-whitespace]@[non-whitespace].[non-whitespace]
+        //TODO: implement a more permissive validation
+    }
+
+    private static boolean isPersonTweetValid(String tweet) {
+        return tweet.matches("@\\S");  // name is nonempty mixture of alphabets and whitespace
         //TODO: implement a more permissive validation
     }
 
