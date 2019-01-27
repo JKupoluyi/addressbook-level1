@@ -65,16 +65,16 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
      * at which java String.format(...) method can insert values.
      * =========================================================================
      */
-    private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s, Tweet: %4$s.";
+    private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s, Twitter: %4$s.";
     private static final String MESSAGE_ADDRESSBOOK_CLEARED = "Address book has been cleared!";
     private static final String MESSAGE_COMMAND_HELP = "%1$s: %2$s";
     private static final String MESSAGE_COMMAND_HELP_PARAMETERS = "\tParameters: %1$s";
     private static final String MESSAGE_COMMAND_HELP_EXAMPLE = "\tExample: %1$s";
     private static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Person: %1$s";
-    private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s";
+    private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s  Twitter:%4$s";
     private static final String MESSAGE_DISPLAY_LIST_ELEMENT_INDEX = "%1$d. ";
     private static final String MESSAGE_GOODBYE = "Exiting Address Book... Good bye!";
-    private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s " + LS + "%3$s";
+    private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s ";
     private static final String MESSAGE_INVALID_FILE = "The given file name [%1$s] is not a valid file name!";
     private static final String MESSAGE_INVALID_PROGRAM_ARGS = "Too many parameters! Correct program argument format:"
                                                             + LS + "\tjava AddressBook"
@@ -444,7 +444,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
      */
     private static String getMessageForSuccessfulAddPerson(String[] addedPerson) {
         return String.format(MESSAGE_ADDED,
-                getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
+                getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson), getTweetFromPerson(addedPerson));
     }
 
     /**
@@ -674,7 +674,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
      */
     private static String getMessageForFormattedPersonData(String[] person) {
         return String.format(MESSAGE_DISPLAY_PERSON_DATA,
-                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person));
+                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person), getTweetFromPerson(person));
     }
 
     /**
@@ -866,6 +866,16 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     }
 
     /**
+     * Returns given person's Twitter handle
+     *
+     * @param person whose Twitter Handle you want
+     */
+
+    private static String getTweetFromPerson(String[] person) {
+        return person[PERSON_DATA_INDEX_TWEET];
+    }
+
+    /**
      * Creates a person from the given data.
      *
      * @param name of person
@@ -873,11 +883,12 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
      * @param email without data prefix
      * @return constructed person
      */
-    private static String[] makePersonFromData(String name, String phone, String email) {
+    private static String[] makePersonFromData(String name, String phone, String email, String tweet) {
         final String[] person = new String[PERSON_DATA_COUNT];
         person[PERSON_DATA_INDEX_NAME] = name;
         person[PERSON_DATA_INDEX_PHONE] = phone;
         person[PERSON_DATA_INDEX_EMAIL] = email;
+        person[PERSON_DATA_INDEX_TWEET] = tweet;
         return person;
     }
 
@@ -889,7 +900,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
      */
     private static String encodePersonToString(String[] person) {
         return String.format(PERSON_STRING_REPRESENTATION,
-                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person));
+                getNameFromPerson(person), getPhoneFromPerson(person), getEmailFromPerson(person), getTweetFromPerson(person));
     }
 
     /**
@@ -928,7 +939,8 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
         final String[] decodedPerson = makePersonFromData(
                 extractNameFromPersonString(encoded),
                 extractPhoneFromPersonString(encoded),
-                extractEmailFromPersonString(encoded)
+                extractEmailFromPersonString(encoded),
+                extractTweetFromPersonString(encoded)
         );
         // check that the constructed person is valid
         return isPersonDataValid(decodedPerson) ? Optional.of(decodedPerson) : Optional.empty();
@@ -962,10 +974,11 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     private static boolean isPersonDataExtractableFrom(String personData) {
         final String matchAnyPersonDataPrefix = PERSON_DATA_PREFIX_PHONE + '|' + PERSON_DATA_PREFIX_EMAIL + '|' + PERSON_DATA_PREFIX_TWEET;
         final String[] splitArgs = personData.trim().split(matchAnyPersonDataPrefix);
-        return splitArgs.length == 3 // 3 arguments
+        return  splitArgs.length == 4 // 4 arguments was 3 before
                 && !splitArgs[0].isEmpty() // non-empty arguments
                 && !splitArgs[1].isEmpty()
-                && !splitArgs[2].isEmpty();
+                && !splitArgs[2].isEmpty()
+                && !splitArgs[3].isEmpty();
     }
 
     /**
@@ -994,7 +1007,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     private static String extractPhoneFromPersonString(String encoded) {
         final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
         final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
-        //!!!!!!final int indexOfTweetPrefix = encoded.indexOf(PERSON_DATA_PREFIX_TWEET)
+        final int indexOfTweetPrefix = encoded.indexOf(PERSON_DATA_PREFIX_TWEET);
 
         // phone is last arg, target is from prefix to end of string
         if (indexOfPhonePrefix > indexOfEmailPrefix) {
@@ -1030,6 +1043,30 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
             return removePrefixSign(
                     encoded.substring(indexOfEmailPrefix, indexOfPhonePrefix).trim(),
                     PERSON_DATA_PREFIX_EMAIL);
+        }
+    }
+
+    /**
+     * Extracts substring representing phone number from person string representation
+     *
+     * @param encoded person string representation
+     * @return phone number argument WITHOUT prefix
+     */
+    private static String extractTweetFromPersonString(String encoded) {
+        final int indexOfPhonePrefix = encoded.indexOf(PERSON_DATA_PREFIX_PHONE);
+        final int indexOfEmailPrefix = encoded.indexOf(PERSON_DATA_PREFIX_EMAIL);
+        final int indexOfTweetPrefix = encoded.indexOf(PERSON_DATA_PREFIX_TWEET);
+
+        // phone is last arg, target is from prefix to end of string
+        if (indexOfTweetPrefix > indexOfEmailPrefix) {
+            return removePrefixSign(encoded.substring(indexOfTweetPrefix, encoded.length()).trim(),
+                    PERSON_DATA_PREFIX_TWEET);
+
+            // phone is middle arg, target is from own prefix to next prefix
+        } else {
+            return removePrefixSign(
+                    encoded.substring(indexOfTweetPrefix, indexOfEmailPrefix).trim(),
+                    PERSON_DATA_PREFIX_TWEET);
         }
     }
 
@@ -1085,7 +1122,7 @@ public class AddressBook<PERSON_DATA_PREFIX_TWITTER> {
     }
 
     private static boolean isPersonTweetValid(String tweet) {
-        return tweet.matches("@\\S");  // name is nonempty mixture of alphabets and whitespace
+        return true;//tweet.matches("@\\S+");  // name is nonempty mixture of alphabets and whitespace
         //TODO: implement a more permissive validation
     }
 

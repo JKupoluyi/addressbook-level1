@@ -19,26 +19,28 @@
 
   # should catch invalid args format
   add wrong args wrong args
-  add Valid Name p/12345 valid@email.butNoPrefix
-  add Valid Name 12345 e/valid@email.butPhonePrefixMissing
+  add Valid Name p/12345 valid@email.butNoPrefix t/@ValidHandle
+  add Valid Name 12345 e/valid@email.butPhonePrefixMissing t/@ValidHandle
+  add Valid Name 12345 e/valid@email.butPhonePrefixMissing @ValidHandleButPrefixMising
   
   # should catch invalid person data
   add []\[;] p/12345 e/valid@e.mail
   add Valid Name p/not_numbers e/valid@e.mail
   add Valid Name p/12345 e/notAnEmail
+  add Valid Name p/12345 e/valid@e.mail t/notAtwitterHandle
 
   # should add correctly
-  add Adam Brown p/111111 e/adam@gmail.com
+  add Adam Brown p/111111 e/adam@gmail.com t/@AdamBrown
   list
-  add Betsy Choo p/222222 e/benchoo@nus.edu.sg
+  add Betsy Choo p/222222 e/benchoo@nus.edu.sg t/@BetsyChoo
   list
 
-  # order of phone and email should not matter
+  # order of phone, email and twitter handle should not matter
   add Charlie Dickson e/charlie.d@nus.edu.sg p/333333
+  list t/@Charlie
+  add Dickson Ee t/@Dickson e/dickson@nus.edu.sg p/444444
   list
-  add Dickson Ee e/dickson@nus.edu.sg p/444444
-  list
-  add Esther Potato p/555555 e/esther@notreal.potato
+  add Esther Potato p/555555 t/@Esther e/esther@notreal.potato
   list
 
 ##########################################################
